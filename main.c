@@ -22,6 +22,24 @@ int frequency_of_primes (int n) {
   return freq;
 }
 
+void write_3d_array_to_bin(double* array, int width, int height, int depth, const char* filename) {
+    FILE* file = fopen(filename, "wb");
+    if (file == NULL) {
+        printf("Could not open file %s\n", filename);
+        return;
+    }
+
+    size_t array_size = width * height * depth;
+    if (fwrite(array, sizeof(double), array_size, file) != array_size) {
+        printf("Error writing to file %s\n", filename);
+        fclose(file);
+        return;
+    }
+
+    fclose(file);
+}
+
+
 void print_timed_done(int n) {
   clock_t tot_time = clock() - start_time;
   int tot_hours = (int) floor(((double) tot_time) / 60. / 60. / CLOCKS_PER_SEC);
@@ -145,6 +163,7 @@ void displacement_fields(void) {
 #else
   double t_of_k, phig, Beta, twb;
   fftw_complex *(cpot);  /* For computing nongaussian fnl ic */
+  fftw_complex *cdelta;
   fftw_real *(pot);
 #ifndef LOCAL_FNL  
 // *************************** DSJ *******************************
@@ -989,8 +1008,9 @@ void displacement_fields(void) {
       cdisp[axes] = (fftw_complex *) malloc(bytes += sizeof(fftw_real) * TotalSizePlusAdditional);
       disp[axes] = (fftw_real *) cdisp[axes];
     }
+  cdelta = (fftw_complex *) malloc(bytes += sizeof(fftw_real) * TotalSizePlusAdditional);
 
-  ASSERT_ALLOC(cdisp[0] && cdisp[1] && cdisp[2]);
+  ASSERT_ALLOC(cdisp[0] && cdisp[1] && cdisp[2] && cdelta);
 
 
 #if defined(MULTICOMPONENTGLASSFILE) && defined(DIFFERENT_TRANSFER_FUNC)
@@ -1046,10 +1066,17 @@ void displacement_fields(void) {
                                 cdisp[axes][coord].im = kvec[axes] * twb * cpot[coord].re;
                                 cdisp[axes][coord].re = - kvec[axes] * twb * cpot[coord].im;
                                         }
+                      cdelta[coord].re = twb  * cpot[coord].re;
+                      cdelta[coord].im = twb  * cpot[coord].im;
             }
 
+      write_3d_array_to_bin(cdelta, "delta.bin", Local_nx, Nmesh, Nmesh / 2);
+      write_3d_array_to_bin(cdisp[0], "disp1.bin", Local_nx, Nmesh, Nmesh / 2);
+      write_3d_array_to_bin(cdisp[1], "disp2.bin", Local_nx, Nmesh, Nmesh / 2);
+      write_3d_array_to_bin(cdisp[2], "disp3.bin", Local_nx, Nmesh, Nmesh / 2);
 
       free(cpot);
+      free(cdelta);
 
       if (ThisTask == 0 ) print_timed_done(1);
 
