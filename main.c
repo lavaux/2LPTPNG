@@ -22,7 +22,7 @@ int frequency_of_primes (int n) {
   return freq;
 }
 
-void write_3d_array_to_bin(double* array, int width, int height, int depth, const char* filename) {
+void write_3d_array_to_bin(fftw_complex * array, int width, int height, int depth, const char* filename) {
     FILE* file = fopen(filename, "wb");
     if (file == NULL) {
         printf("Could not open file %s\n", filename);
@@ -30,7 +30,7 @@ void write_3d_array_to_bin(double* array, int width, int height, int depth, cons
     }
 
     size_t array_size = width * height * depth;
-    if (fwrite(array, sizeof(double), array_size, file) != array_size) {
+    if (fwrite(array, sizeof(fftw_complex), array_size, file) != array_size) {
         printf("Error writing to file %s\n", filename);
         fclose(file);
         return;
@@ -1070,10 +1070,10 @@ void displacement_fields(void) {
                       cdelta[coord].im = twb  * cpot[coord].im;
             }
 
-      write_3d_array_to_bin(cdelta, "delta.bin", Local_nx, Nmesh, Nmesh / 2);
-      write_3d_array_to_bin(cdisp[0], "disp1.bin", Local_nx, Nmesh, Nmesh / 2);
-      write_3d_array_to_bin(cdisp[1], "disp2.bin", Local_nx, Nmesh, Nmesh / 2);
-      write_3d_array_to_bin(cdisp[2], "disp3.bin", Local_nx, Nmesh, Nmesh / 2);
+      write_3d_array_to_bin(cdelta,  Local_nx, Nmesh, Nmesh / 2,"delta.bin");
+      write_3d_array_to_bin(cdisp[0], Local_nx, Nmesh, Nmesh / 2, "disp1.bin");
+      write_3d_array_to_bin(cdisp[1], Local_nx, Nmesh, Nmesh / 2, "disp2.bin");
+      write_3d_array_to_bin(cdisp[2], Local_nx, Nmesh, Nmesh / 2, "disp3.bin");
 
       free(cpot);
       free(cdelta);

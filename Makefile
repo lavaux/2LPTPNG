@@ -26,11 +26,11 @@ OPT   +=  -DNO64BITID     # switch this on if you want normal 32-bit IDs
 #OPT += -DONLY_ZA    # swith this on if you want ZA initial conditions (2LPT otherwise)
 
 #MODE = -DONLY_GAUSSIAN
-#MODE = -DLOCAL_FNL
-MODE = -DEQUIL_FNL
+MODE = -DLOCAL_FNL
+#MODE = -DEQUIL_FNL
 
-MODE = -DORTOG_FNL
-MODE = -DORTOG_LSS_FNL
+#MODE = -DORTOG_FNL
+#MODE = -DORTOG_LSS_FNL
 
 
 ifeq ($(MODE),-DONLY_GAUSSIAN)
@@ -51,8 +51,8 @@ OPTIONS =  $(OPT)
 #
 GSL_INCL= -I/usr/local/gsl_gcc_mpi/include
 GSL_LIBS= -L/usr/local/gsl_gcc_mpi/lib
-FFTW_INCL= -I/mnt/home/ajamieson/ceph/Software/Source/Test_Roman_2LPT_PNG/fftw2/include
-FFTW_LIBS= -L/mnt/home/ajamieson/ceph/Software/Source/Test_Roman_2LPT_PNG/fftw2/lib
+FFTW_INCL= -I/home/guilhem/Software/2LPTPNG/install/include
+FFTW_LIBS= -L/home/guilhem/Software/2LPTPNG/install/lib  -ldrfftw_mpi -ldfftw_mpi -ldrfftw -ldfftw
 
 CC       = mpicc #-g -Wall -fbounds-check    # sets the C-compiler (default)
 MPICHLIB = -L/usr/local/mpich_gcc/lib
@@ -63,7 +63,7 @@ MPICHLIB = -L/usr/local/mpich_gcc/lib
 
 OPTIMIZE =   -O3 -Wall    # optimization and warning flags (default)
 
-SYSTYPE="flatiron"
+#SYSTYPE="flatiron"
 #SYSTYPE="GordonS"
 
 ifeq ($(SYSTYPE),"flatiron")
