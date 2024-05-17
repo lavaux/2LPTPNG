@@ -1070,7 +1070,16 @@ void displacement_fields(void) {
                       cdelta[coord].im = twb  * cpot[coord].im;
             }
 
-      write_3d_array_to_bin(cdelta,  Local_nx, Nmesh, Nmesh / 2,"delta.bin");
+     for (i = 0; i < Local_nx; i++)
+        for (j = 0; j < Nmesh; j++)
+         for (k = 0; k < Nmesh / 2; k++) {
+          coord = (i * Nmesh + j) * (2 * (Nmesh / 2 + 1)) + k;
+          cpot[coord] = cdelta[coord];
+         }
+      rfftwnd_mpi(Inverse_plan, 1, pot, Workspace, FFTW_NORMAL_ORDER);
+      fflush(stdout);
+   
+      write_3d_array_to_bin(pot,  Local_nx, Nmesh, (Nmesh /2 + 1)*2, "delta.bin");
       write_3d_array_to_bin(cdisp[0], Local_nx, Nmesh, Nmesh / 2, "disp1.bin");
       write_3d_array_to_bin(cdisp[1], Local_nx, Nmesh, Nmesh / 2, "disp2.bin");
       write_3d_array_to_bin(cdisp[2], Local_nx, Nmesh, Nmesh / 2, "disp3.bin");
