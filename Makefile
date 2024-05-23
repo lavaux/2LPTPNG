@@ -61,7 +61,7 @@ MPICHLIB = -L/usr/local/mpich_gcc/lib
 
 # -----------------------------------
 
-OPTIMIZE =   -O3 -Wall    # optimization and warning flags (default)
+OPTIMIZE =    -O3 -Wall    # optimization and warning flags (default)
 
 #SYSTYPE="flatiron"
 #SYSTYPE="GordonS"

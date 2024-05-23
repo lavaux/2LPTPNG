@@ -22,7 +22,7 @@ int frequency_of_primes (int n) {
   return freq;
 }
 
-void write_3d_array_to_bin(fftw_complex * array, int width, int height, int depth, const char* filename) {
+void write_3d_array_to_bin_complex(fftw_complex * array, int width, int height, int depth, const char* filename) {
     FILE* file = fopen(filename, "wb");
     if (file == NULL) {
         printf("Could not open file %s\n", filename);
@@ -38,6 +38,24 @@ void write_3d_array_to_bin(fftw_complex * array, int width, int height, int dept
 
     fclose(file);
 }
+
+void write_3d_array_to_bin(fftw_real * array, int width, int height, int depth, const char* filename) {
+    FILE* file = fopen(filename, "wb");
+    if (file == NULL) {
+        printf("Could not open file %s\n", filename);
+        return;
+    }
+
+    size_t array_size = width * height * depth;
+    if (fwrite(array, sizeof(fftw_real), array_size, file) != array_size) {
+        printf("Error writing to file %s\n", filename);
+        fclose(file);
+        return;
+    }
+
+    fclose(file);
+}
+
 
 
 void print_timed_done(int n) {
@@ -1066,23 +1084,23 @@ void displacement_fields(void) {
                                 cdisp[axes][coord].im = kvec[axes] * twb * cpot[coord].re;
                                 cdisp[axes][coord].re = - kvec[axes] * twb * cpot[coord].im;
                                         }
-                      cdelta[coord].re = twb  * cpot[coord].re;
-                      cdelta[coord].im = twb  * cpot[coord].im;
+                      cdelta[coord].re = -kmag2* twb  * cpot[coord].re;
+                      cdelta[coord].im = -kmag2*twb  * cpot[coord].im;
             }
 
-     for (i = 0; i < Local_nx; i++)
+     for (ii = 0; ii < Local_nx; ii++)
         for (j = 0; j < Nmesh; j++)
          for (k = 0; k < Nmesh / 2; k++) {
-          coord = (i * Nmesh + j) * (2 * (Nmesh / 2 + 1)) + k;
+          coord = (ii * Nmesh + j) * (Nmesh / 2 + 1) + k;
           cpot[coord] = cdelta[coord];
          }
       rfftwnd_mpi(Inverse_plan, 1, pot, Workspace, FFTW_NORMAL_ORDER);
       fflush(stdout);
    
       write_3d_array_to_bin(pot,  Local_nx, Nmesh, (Nmesh /2 + 1)*2, "delta.bin");
-      write_3d_array_to_bin(cdisp[0], Local_nx, Nmesh, Nmesh / 2, "disp1.bin");
-      write_3d_array_to_bin(cdisp[1], Local_nx, Nmesh, Nmesh / 2, "disp2.bin");
-      write_3d_array_to_bin(cdisp[2], Local_nx, Nmesh, Nmesh / 2, "disp3.bin");
+      write_3d_array_to_bin_complex(cdisp[0], Local_nx, Nmesh, Nmesh / 2, "disp1.bin");
+      write_3d_array_to_bin_complex(cdisp[1], Local_nx, Nmesh, Nmesh / 2, "disp2.bin");
+      write_3d_array_to_bin_complex(cdisp[2], Local_nx, Nmesh, Nmesh / 2, "disp3.bin");
 
       free(cpot);
       free(cdelta);
