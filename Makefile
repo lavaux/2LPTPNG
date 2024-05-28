@@ -51,8 +51,8 @@ OPTIONS =  $(OPT)
 #
 GSL_INCL= -I/usr/local/gsl_gcc_mpi/include
 GSL_LIBS= -L/usr/local/gsl_gcc_mpi/lib
-FFTW_INCL= -I/home/guilhem/Software/2LPTPNG/install/include
-FFTW_LIBS= -L/home/guilhem/Software/2LPTPNG/install/lib  -ldrfftw_mpi -ldfftw_mpi -ldrfftw -ldfftw
+FFTW_INCL= -I/home/lavaux/Software/2LPTPNG/fftw/include
+FFTW_LIBS= -L/home/lavaux/Software/2LPTPNG/fftw/lib  -ldrfftw_mpi -ldfftw_mpi -ldrfftw -ldfftw
 
 CC       = mpicc #-g -Wall -fbounds-check    # sets the C-compiler (default)
 MPICHLIB = -L/usr/local/mpich_gcc/lib

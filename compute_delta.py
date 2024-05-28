@@ -12,6 +12,7 @@ phi = phi[:,:,:N]
 cpar = borg.cosmo.CosmologicalParameters()
 cpar.omega_m =  0.3175 
 cpar.omega_q = 0.6825   
+#cpar.omega_b = 0.00
 cpar.omega_b = 0.049
 cpar.h = 0.6711
 cpar.sigma8 = 0.
@@ -20,26 +21,51 @@ cpar.n_s = 0.9624
 sigma8=0.834
 #PrimordialIndex  0.9624       % may be used to tilt the primordial index, needed for nongaussian inital potential
 
+k_Tk,Tk_ref = np.genfromtxt("Tk_0.txt").T
+
 
 print(cpar)
-cc = borg.cosmo.ClassCosmo(cpar, 100,10., extra=dict(z_max_pk="200."))
+k_max = 10.
+extra = {"z_max_pk":"200.","T_cmb":"2.7255"}
+cc = borg.cosmo.ClassCosmo(cpar, 100,k_max, extra=extra)
 cc.computeSigma8()
 boost = (sigma8/cc.getCosmology()['sigma_8'])**2
 cpar.A_s *= boost
-cc = borg.cosmo.ClassCosmo(cpar, 100,10., extra=dict(z_max_pk="200."))
+cc = borg.cosmo.ClassCosmo(cpar, 100,k_max, extra=extra)
 cc.computeSigma8()
 print(cc.getCosmology())
 cc.retrieve_Tk(127)
 k, Pk= aq.clustering.compute_power_spectrum(phi, Lbox=L, Nk=256)
 
+
+fc = (cpar.omega_b-cpar.omega_b)/cpar.omega_m
+fb = 1-fc
+Tk_ref = Tk_ref[k_Tk<k_max]
+k_Tk = k_Tk[k_Tk<k_max]
+Tk_CLASS = cc.get_Tk(k_Tk, borg.cosmo.TransferType.TRANSFER_COLD) * fc + cc.get_Tk(k_Tk, borg.cosmo.TransferType.TRANSFER_BARYON) * fb
+
 plt.loglog(k, Pk, label='IC')
 plt.loglog(k, cc.get_Pk_matter(k),label='CLASS')
+plt.xlabel('$k$ ($h$Mpc$^{-1}$)')
 plt.legend()
 plt.savefig("pk.png")
 
 plt.clf()
 plt.semilogx(k, Pk/cc.get_Pk_matter(k)) 
+plt.xlabel('$k$ ($h$Mpc$^{-1}$)')
 plt.axhline(1.0,lw=2.0,color='k')
 plt.ylim(0.8,1.2)
 plt.legend()
 plt.savefig("ratio.png")
+
+
+plt.clf()
+plt.semilogx(k_Tk, Tk_ref)
+plt.xlabel('$k$ ($h$Mpc$^{-1}$)')
+plt.ylabel('$T(k)$ relative')
+Tk_CLASS_n = -Tk_CLASS/k_Tk**2
+Tk_CLASS_n /= Tk_CLASS_n[1]
+plt.semilogx(k_Tk, Tk_CLASS_n)
+plt.savefig("Tk.png")
+
+
